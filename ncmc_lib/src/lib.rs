@@ -91,7 +91,7 @@ impl NcmFile {
         let buf = aes
             .decrypt_padded::<Pkcs7>(&mut buf)
             .map_err(|_| NcmError::Invalid("Failed to decrypt key".to_string()))?;
-        if &buf[..17] != b"neteasecloudmusic" {
+        if buf.len() < 17 || &buf[..17] != b"neteasecloudmusic" {
             return Err(NcmError::Invalid("Invalid key header".to_string()));
         }
         let key_data = &buf[17..];
@@ -119,7 +119,7 @@ impl NcmFile {
         let mut buf = vec![0; length];
         file.read_exact(&mut buf)?;
         buf.iter_mut().for_each(|byte| *byte ^= META_MASK);
-        if &buf[..22] != b"163 key(Don't modify):" {
+        if buf.len() < 22 || &buf[..22] != b"163 key(Don't modify):" {
             return Err(NcmError::Invalid("Invalid metadata header".to_string()));
         }
         let mut buf = BASE64_STANDARD
@@ -129,7 +129,7 @@ impl NcmFile {
         let buf = aes
             .decrypt_padded::<Pkcs7>(&mut buf)
             .map_err(|_| NcmError::Invalid("Failed to decrypt metadata".to_string()))?;
-        if &buf[..6] != b"music:" {
+        if buf.len() < 6 || &buf[..6] != b"music:" {
             return Err(NcmError::Invalid("Invalid meta marker".to_string()));
         }
         serde_json::from_slice(&buf[6..])
@@ -144,7 +144,7 @@ impl NcmFile {
         let length = u32::from_le_bytes(buf);
         let mut buf = vec![0; length as usize];
         file.read_exact(&mut buf)?;
-        file.seek_relative((cover_frame_length - length) as i64)?;
+        file.seek_relative(cover_frame_length as i64 - length as i64)?;
         Ok(buf)
     }
 
