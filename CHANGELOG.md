@@ -9,6 +9,11 @@ Note: In this file, do not use the hard wrap in the middle of a sentence for com
 -->
 
 ## [Unreleased]
+## [0.3.0] - 2026-07-18
+
+- refactor with claude
+- better api for ncmc_lib
+
 ## [0.2.10] - 2026-05-09
 
 - end with exitcode set
